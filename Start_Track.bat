@@ -109,11 +109,13 @@ mkdir "!NON_PROXY_IMAGES_DIR!"      >nul
 
 :: -------- 1) Extract all frames (1280px proxy + Original) ----------------
 echo         [1/5] Extracting frames (Proxy + Original) ...
-"%FFMPEG%" -loglevel error -stats -i "!VIDEO!" ^
-    -vf "scale='if(gt(iw,ih),1280,-1)':'if(gt(iw,ih),-1,1280)'" -qscale:v 2 "!IMG_DIR!\frame_%%06d.jpg" ^
-    -qscale:v 2 "!NON_PROXY_IMAGES_DIR!\frame_%%06d.jpg"
+
+"%FFMPEG%" -loglevel error -stats -hwaccel cuda -hwaccel_output_format cuda -i "!VIDEO!" ^
+    -filter_complex "[0:v]hwdownload,format=nv12[raw]; [0:v]scale_cuda='if(gt(iw,ih),1280,-1)':'if(gt(iw,ih),-1,1280)',hwdownload,format=nv12[scaled]" ^
+    -map "[scaled]" -qscale:v 2 "!IMG_DIR!\frame_%%06d.jpg" ^
+    -map "[raw]" -qscale:v 2 "!NON_PROXY_IMAGES_DIR!\frame_%%06d.jpg"
 if errorlevel 1 (
-    echo        x FFmpeg failed - skipping "!BASE!".
+    echo         x FFmpeg failed - skipping "!BASE!".
     goto :END
 )
 
