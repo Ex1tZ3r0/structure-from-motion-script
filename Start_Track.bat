@@ -132,7 +132,8 @@ echo        [2/5] COLMAP feature_extractor ...
     --ImageReader.single_camera 1 ^
     --FeatureExtraction.type SIFT ^
     --FeatureExtraction.use_gpu 1 ^
-    --FeatureExtraction.max_image_size 4096
+    --FeatureExtraction.max_image_size 4096 ^
+    --SiftExtraction.max_num_features 8192
 if errorlevel 1 (
     echo        x feature_extractor failed - skipping "!BASE!".
     goto :END
